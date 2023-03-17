@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+    <title>Controle de Braço Robótico</title>
+    <style>
+      /* Estilos para os botões */
+      button {
+        font-size: 1.2rem;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        margin: 10px;
+        cursor: pointer;
+        background-color: #4caf50;
+        color: #fff;
+      }
+      button:hover {
+        background-color: #3e8e41;
+      }
+      .title{
+        margin-top: 50px;
+        background-color: aqua;
+      }
+      body{
+        background-color: #151636;
+      }
+      .btnclass{
+        background-color: rgb(7, 63, 54);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="contaier">
+      <div class="d-flex justify-content-center title">
+        <h1 class="text-center">Controle de Braço Robótico</h1>
+      </div>
+      
+      <div class="d-flex justify-content-center btnclass">
+        <button id="left"><</button>
+        <button id="front">^</button>
+        <button id="back">v</button>
+        <button id="right">></button>
+      </div>
+      
+      <div class="d-flex justify-content-center btnclass">
+        <button id="up">^^</button>
+        <button id="down">vv</button>
+      </div>
+    </div>
+    <script>  
+      // Lógica do controle de movimento do braço robótico
+      const leftButton = document.getElementById("left");
+      const frontButton = document.getElementById("front");
+      const backButton = document.getElementById("back");
+      const rightButton = document.getElementById("right");
+			const upButton = document.getElementById("up");
+			const downButton = document.getElementById("down");
+
+      var arrayPositions = [50,50,50];
+
+      leftButton.addEventListener("click", () => {
+        arrayPositions = [arrayPositions[0] - 1, arrayPositions[1], arrayPositions[2]];
+
+        sendRequest(arrayPositions);
+        console.log("Movendo para a esquerda");
+      });
+
+      frontButton.addEventListener("click", () => {
+        arrayPositions = [arrayPositions[0], arrayPositions[1] + 1, arrayPositions[2]];
+
+        sendRequest(arrayPositions);
+        console.log("Movendo para cima");
+      });
+
+      backButton.addEventListener("click", () => {
+        arrayPositions = [arrayPositions[0], arrayPositions[1] - 1, arrayPositions[2]];
+
+        sendRequest(arrayPositions);
+        console.log("Movendo para baixo");
+      });
+
+      rightButton.addEventListener("click", () => {
+        arrayPositions = [arrayPositions[0] + 1, arrayPositions[1], arrayPositions[2]];
+
+        sendRequest(arrayPositions);
+        console.log("Movendo para a direita");
+      });
+
+			upButton.addEventListener("click", () => {
+        arrayPositions = [arrayPositions[0], arrayPositions[1], arrayPositions[2] + 1];
+
+        sendRequest(arrayPositions);
+				console.log("Movendo para cima");
+			});
+
+			downButton.addEventListener("click", () => {
+        arrayPositions = [arrayPositions[0], arrayPositions[1], arrayPositions[2] - 1];
+
+        sendRequest(arrayPositions);
+				console.log("Movendo para baixo");
+			});	
+
+      // phost method xmlhttprequest where each array index is a position
+      function sendRequest(positions) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log(this.responseText);
+        }
+      };
+        xhttp.open("POST", "http://localhost:3000/senddata", true);
+        xhttp.setRequestHeader("Content-type", "application/json");
+        var data = JSON.stringify({
+          x: positions[0],
+          y: positions[1],
+          z: positions[2]
+      });
+        xhttp.send(data);
+        // bootstrap toast notification
+        $('.toast').toast('show');
+      }
+
+    </script>
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- toast -->
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="500">
+      <div class="toast-header">
+        <strong class="mr-auto">Movimento</strong>
+        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="toast-body">
+        Movimento realizado com sucesso!
+      </div>
+    </div>
+    <!-- bootstrap js -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
+</html>
