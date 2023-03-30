@@ -31,6 +31,10 @@
       .btnclass{
         background-color: rgb(7, 63, 54);
       }
+
+      p{
+        color: white;
+      }
     </style>
   </head>
   <body>
@@ -51,6 +55,13 @@
         <button id="down">vv</button>
       </div>
     </div>
+
+    <div class="container">
+      <div class="d-flex justify-content-center">
+        <p id="positionsP">Posições atuais:</p>
+      </div>
+    </div>
+
     <script>  
       // Lógica do controle de movimento do braço robótico
       const leftButton = document.getElementById("left");
@@ -59,8 +70,27 @@
       const rightButton = document.getElementById("right");
 			const upButton = document.getElementById("up");
 			const downButton = document.getElementById("down");
+      
+      var arrayPositions = [0,0,5];
 
-      var arrayPositions = [50,50,50];
+      // Quando a página é carregada, a última posição é obtida do banco de dados
+      window.onload = function() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            console.log(this.responseText);
+            arrayPositions[0] = JSON.parse(this.responseText)[0]["x"]
+            arrayPositions[1] = JSON.parse(this.responseText)[0]["y"]
+            arrayPositions[2] = JSON.parse(this.responseText)[0]["z"]
+            console.log(arrayPositions)
+            document.getElementById("positionsP").innerHTML = "Posições atuais: " + arrayPositions;
+          }
+        };
+        xhttp.open("GET", "http://localhost:3000/getlast", true);
+        xhttp.send()
+        };
+
+
 
       leftButton.addEventListener("click", () => {
         arrayPositions = [arrayPositions[0] - 1, arrayPositions[1], arrayPositions[2]];
@@ -104,8 +134,30 @@
 				console.log("Movendo para baixo");
 			});	
 
-      // phost method xmlhttprequest where each array index is a position
+      // Função que verifica se os valores estão no limite, e envia a requisição para o servidor
       function sendRequest(positions) {
+        // Preventiva de erros
+        if(arrayPositions[0] > 50) {
+          arrayPositions[0] = 50;
+        }
+        if(arrayPositions[0] < -50) {
+          arrayPositions[0] = -50;
+        }
+        if(arrayPositions[1] > 50) {
+          arrayPositions[1] = 50;
+        }
+        if(arrayPositions[1] < 0) {
+          arrayPositions[1] = 0;
+        }
+        if(arrayPositions[2] > 10) {
+          arrayPositions[2] = 10;
+        }
+        if(arrayPositions[2] < 0) {
+          arrayPositions[2] = 0;
+        }
+
+        document.getElementById("positionsP").innerHTML = "Posições atuais: " + arrayPositions;
+
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -123,6 +175,24 @@
         // bootstrap toast notification
         $('.toast').toast('show');
       }
+
+      var popup = window.open("./Godot/html/executavelGODOT.html", "_blank");
+      if(popup == null || typeof(popup)=='undefined') {
+        alert("Se o popup estiver bloqueado, desbloqueie para abrir a página do jogo, ou acesse o executável exe na pasta ./Godot/executavel")
+      }
+
+      // Função utilizada para limpar o banco de dados
+      function deleteAll() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log(this.responseText);
+        }
+      };
+        xhttp.open("GET", "http://localhost:3000/deleteall", true);
+        xhttp.send()
+      }
+
 
     </script>
     <!-- jquery -->
